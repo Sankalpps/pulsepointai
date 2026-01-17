@@ -110,6 +110,7 @@ def main():
         
         video_file = None
         video_path = None
+        drive_link = None
         
         if input_method == "Upload File":
             video_file = st.file_uploader(
