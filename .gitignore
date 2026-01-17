@@ -1,0 +1,50 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyc
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# Environment Variables
+.env
+*.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.wav
+*.mp3
+outputs/
+temp/
+clips/
+
+# Whisper models cache
+~/.cache/whisper/
+
+# Streamlit
+.streamlit/
+
+# Logs
+*.log
+
+# Test files
+test_videos/
+sample_videos/
