@@ -49,7 +49,8 @@ class VideoProcessor:
         
         try:
             audio = self.video.audio
-            audio.write_audiofile(output_path, verbose=False, logger=None)
+            # Write audio file without verbose parameters (compatible with newer moviepy)
+            audio.write_audiofile(output_path)
             return output_path
         except Exception as e:
             raise Exception(f"Failed to extract audio: {str(e)}")
@@ -89,16 +90,17 @@ class VideoProcessor:
             if start_time >= end_time:
                 raise ValueError("Start time must be less than end time")
             
-            # Extract subclip
-            subclip = self.video.subclip(start_time, end_time)
+            # Extract subclip (subclipped in newer moviepy versions)
+            try:
+                subclip = self.video.subclipped(start_time, end_time)
+            except AttributeError:
+                subclip = self.video.subclip(start_time, end_time)
             
             # Write to file
             subclip.write_videofile(
                 output_path,
                 codec='libx264',
                 audio_codec='aac',
-                verbose=False,
-                logger=None
             )
             
             subclip.close()

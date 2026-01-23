@@ -126,11 +126,10 @@ class EmotionDetector:
                 print(f"Loading Whisper model ({model_size})...")
                 self.whisper_model = whisper.load_model(model_size)
             
-            # Transcribe
+            # Transcribe (without verbose parameter for compatibility)
             result = self.whisper_model.transcribe(
                 audio_path,
-                word_timestamps=True,
-                verbose=False
+                word_timestamps=True
             )
             
             # Extract segments with timestamps

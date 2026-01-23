@@ -4,7 +4,21 @@ from pathlib import Path
 import google.generativeai as genai
 from moviepy import VideoFileClip, TextClip, CompositeVideoClip
 import cv2
-import mediapipe as mp
+
+# Try to import mediapipe with fallback for different versions
+try:
+    import mediapipe as mp
+    # Check if solutions attribute exists (older API)
+    if hasattr(mp, 'solutions'):
+        MP_FACE_DETECTION = mp.solutions.face_detection
+        MEDIAPIPE_AVAILABLE = True
+    else:
+        # Newer mediapipe versions have different structure
+        MEDIAPIPE_AVAILABLE = False
+        MP_FACE_DETECTION = None
+except ImportError:
+    MEDIAPIPE_AVAILABLE = False
+    MP_FACE_DETECTION = None
 
 
 class ClipGenerator:
@@ -21,9 +35,10 @@ class ClipGenerator:
         genai.configure(api_key=gemini_api_key)
         self.model = genai.GenerativeModel('gemini-1.5-flash')
         
-        # MediaPipe for face detection
-        self.mp_face_detection = mp.solutions.face_detection
+        # MediaPipe for face detection (if available)
+        self.mp_face_detection = MP_FACE_DETECTION
         self.face_detection = None
+        self.mediapipe_available = MEDIAPIPE_AVAILABLE
     
     def identify_key_moments(self, transcript, emotional_peaks, num_clips=5, clip_duration=60):
         """
@@ -216,7 +231,11 @@ IMPORTANT:
             start_time = moment['start_time']
             end_time = min(moment['end_time'], video.duration)
             
-            clip = video.subclip(start_time, end_time)
+            # Use subclipped for newer moviepy versions, fallback to subclip
+            try:
+                clip = video.subclipped(start_time, end_time)
+            except AttributeError:
+                clip = video.subclip(start_time, end_time)
             
             # Smart crop to vertical if enabled
             if smart_crop:
@@ -226,13 +245,11 @@ IMPORTANT:
             if add_captions and moment.get('hook'):
                 clip = self._add_caption_overlay(clip, moment['hook'])
             
-            # Write output
+            # Write output (without verbose parameters for compatibility)
             clip.write_videofile(
                 str(output_path),
                 codec='libx264',
                 audio_codec='aac',
-                verbose=False,
-                logger=None,
                 fps=24
             )
             
