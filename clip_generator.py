@@ -1,7 +1,7 @@
 import os
 import tempfile
 from pathlib import Path
-import google.generativeai as genai
+from google import genai
 from moviepy import VideoFileClip, TextClip, CompositeVideoClip
 import cv2
 
@@ -32,8 +32,7 @@ class ClipGenerator:
             gemini_api_key: Google Gemini API key
         """
         self.api_key = gemini_api_key
-        genai.configure(api_key=gemini_api_key)
-        self.model = genai.GenerativeModel('gemini-1.5-flash')
+        self.client = genai.Client(api_key=gemini_api_key)
         
         # MediaPipe for face detection (if available)
         self.mp_face_detection = MP_FACE_DETECTION
@@ -104,7 +103,10 @@ IMPORTANT:
         
         try:
             # Call Gemini API
-            response = self.model.generate_content(prompt)
+            response = self.client.models.generate_content(
+                model='gemini-1.5-flash',
+                contents=prompt
+            )
             response_text = response.text.strip()
             
             # Extract JSON from response
